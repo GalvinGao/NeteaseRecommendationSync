@@ -1,0 +1,29 @@
+{
+  "compileOnSave": false,
+  "buildOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "removeComments": true,
+    "baseUrl": "./src",
+    "outDir": "build",
+    "module": "esnext",
+    "target": "es6",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "es6",
+    ],
+    "sourceMap": true,
+    "rootDir": "./",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+  },
+  "exclude": [
+    "node_modules",
+  ]
+}
