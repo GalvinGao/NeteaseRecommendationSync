@@ -11,8 +11,18 @@
 ## 使用
 
 1. `cp .env.example .env` 后修改 `.env` 配置
-2. 启动 NeteaseCloudMusicApi 服务（参照 [NeteaseCloudMusicApi 文档 - 安装](https://neteasecloudmusicapi.vercel.app/#/?id=%e5%ae%89%e8%a3%85)）
-3. 使用 `npm run start` 启动本服务
+
+   1. `SPOTIFY_CLIENT_ID` 和 `SPOTIFY_CLIENT_SECRET` 为 Spotify 开发者账号的 Client ID 和 Client Secret；申请请参考 [Spotify for Developers](https://developer.spotify.com/dashboard/applications)。
+
+   1. `NETEASE_MUSIC_PHONE` 和 `NETEASE_MUSIC_PASSWORD` 为网易云音乐账号的手机号和密码。
+
+   1. `NETEASE_MUSIC_API_SERVER` 为 NeteaseCloudMusicApi 服务地址（参照 [NeteaseCloudMusicApi 文档 - 安装](https://neteasecloudmusicapi.vercel.app/#/?id=%e5%ae%89%e8%a3%85)；运行本项目前需先行启动 NeteaseCloudMusicApi）
+
+1. 配置修改完毕后，使用 `npm run start` 启动本服务
+1. 留意 Console 信息，你将需要通过 Spotify OAuth 授权本服务访问你的 Spotify 账号
+1. 授权通过并完成首次同步后，本项目将会：
+   1. 在 `Asia/Shanghai` 时区的每天 6:10 AM 自动同步网易云音乐每日推荐至 Spotify
+   1. 在 `Asia/Shanghai` 时区的每天 9:10 AM, 15:10 PM, 21:10 PM, 3:10 AM 自动同步 Spotify 所喜欢的音乐至网易云音乐
 
 ## License
 
