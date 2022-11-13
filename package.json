@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "run": "esno src/index.ts",
-    "postinstall": "npx prisma generate && npx prisma db push"
+    "db:sync": "npx prisma generate && npx prisma db push",
+    "postinstall": "npm run db:sync"
   },
   "author": "",
   "license": "ISC",

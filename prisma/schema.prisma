@@ -44,6 +44,7 @@ model SynchronizationSpotifySong {
   artists   String
   album     String
   neteaseId Int
+  liked     Boolean         @default(false)
 
   @@map("synchronization_spotify_songs")
 }
