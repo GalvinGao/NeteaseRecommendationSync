@@ -13,6 +13,7 @@ const SPOTIFY_AUTH_SCOPES = [
   "playlist-modify-public",
   "playlist-modify-private",
   "user-library-modify",
+  "user-library-read",
 ];
 
 function getSpotifyOAuthRequestUrl(redirectUri: string) {

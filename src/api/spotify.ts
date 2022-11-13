@@ -1,6 +1,5 @@
 import { getSpotifyAccessTokenWithRefreshToken } from "action/spotifyAuth";
 import { NeteaseSong } from "api/netease";
-import { DateTime } from "luxon";
 import fetch, { RequestInit } from "node-fetch";
 import { store } from "store";
 
@@ -58,13 +57,9 @@ export async function searchSpotify(song: NeteaseSong) {
   return response.tracks.items[0];
 }
 
-export async function createSpotifyPlaylist(description: string) {
+export async function createSpotifyPlaylist(name: string, description: string) {
   const account = await spotifyApiRequest("/v1/me");
   const userId = account.id;
-
-  const dateInShanghai = DateTime.now()
-    .setZone("Asia/Shanghai")
-    .toFormat("yyyy-MM-dd");
 
   const playlist = await spotifyApiRequest(`/v1/users/${userId}/playlists`, {
     method: "POST",
@@ -72,12 +67,34 @@ export async function createSpotifyPlaylist(description: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      name: "Netease Daily " + dateInShanghai,
+      name,
       description,
       public: false,
     }),
   });
   return playlist.id;
+}
+
+export async function listSpotifyPlaylists() {
+  const playlists = await spotifyApiRequest(`/v1/me/playlists`);
+  return playlists.items;
+}
+
+export async function listSpotifyLikedSongs({ max = 50 }: { max?: number }) {
+  const songs: any[] = [];
+  const limit = 20;
+  let offset = 0;
+  while (true) {
+    const response = await spotifyApiRequest(
+      `/v1/me/tracks?limit=${limit}&offset=${offset}`
+    );
+    songs.push(...response.items);
+    if (response.next === null || response.next === undefined || offset > max) {
+      break;
+    }
+    offset += limit;
+  }
+  return songs;
 }
 
 export async function addSpotifyTracks(

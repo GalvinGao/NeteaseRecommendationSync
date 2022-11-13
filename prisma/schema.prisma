@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./db.sqlite"
+}
+
+model Synchronization {
+  id                         String                       @id @unique
+  createdAt                  DateTime                     @default(now())
+  dailyRecommendationDate    String
+  neteaseSongSynchronization SynchronizationNeteaseSong[]
+  spotifySongSynchronization SynchronizationSpotifySong[]
+
+  @@map("synchronizations")
+}
+
+model SynchronizationNeteaseSong {
+  id        Int             @id @unique @default(autoincrement())
+  neteaseId Int
+  syncId    String
+  sync      Synchronization @relation(fields: [syncId], references: [id])
+  name      String
+  artists   String
+  album     String
+  reason    String
+  spotifyId String?
+  liked     Boolean         @default(false)
+
+  @@map("synchronization_netease_songs")
+}
+
+model SynchronizationSpotifySong {
+  id        Int             @id @unique @default(autoincrement())
+  spotifyId String
+  syncId    String
+  sync      Synchronization @relation(fields: [syncId], references: [id])
+  name      String
+  artists   String
+  album     String
+  neteaseId Int
+
+  @@map("synchronization_spotify_songs")
+}

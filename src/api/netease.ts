@@ -11,30 +11,44 @@ export async function neteaseApiRequest(path: string) {
     headers: {
       Cookie: cookie,
     },
+  }).then((res) => {
+    if (res.status !== 200) {
+      console.log("netease: non-200 response for request", path, res.status);
+      throw new Error(
+        `netease: fetch failed (non-200 response code) ${res.status} ${res.statusText}`
+      );
+    }
+    return res;
   });
 }
 
 export interface NeteaseSong {
+  id: number;
   name: string;
   artists: string[];
   album: string;
   reason: string;
+  spotifyId?: string;
 }
-
 export async function getNeteaseRecommendations(): Promise<{
   recommendations: NeteaseSong[];
-  recommendationsOriginal: any;
+  original: any;
 }> {
-  const list = (await (
-    await neteaseApiRequest("/recommend/songs")
-  ).json()) as any;
+  const request = await neteaseApiRequest("/recommend/songs");
+  const list = (await request.json()) as any;
   return {
     recommendations: list.data.dailySongs.map((song: any) => ({
+      id: song.id,
       name: song.name,
       artists: song.ar.map((artist: any) => artist.name),
       album: song.al.name,
       reason: song.reason,
     })),
-    recommendationsOriginal: list,
+    original: list,
   };
+}
+
+export async function likeNeteaseMusic(id: number) {
+  const request = await neteaseApiRequest(`/like?id=${id}&like=true`);
+  return request.json();
 }
