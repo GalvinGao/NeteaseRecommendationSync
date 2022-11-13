@@ -28,3 +28,11 @@ export const SYNC_TIME_PARSED = DateTime.fromFormat(SYNC_TIME, "HH:mm", {
 export const OAUTH_REDIRECT_SERVER_PORT = parseInt(
   process.env.OAUTH_REDIRECT_SERVER_PORT || "3000"
 );
+
+export const NETEASE_MUSIC_API_SERVER =
+  process.env.NETEASE_MUSIC_API_SERVER || "http://localhost:3000";
+
+export const NETEASE_MUSIC_PHONE = getRequiredEnvVar("NETEASE_MUSIC_PHONE");
+export const NETEASE_MUSIC_PASSWORD = getRequiredEnvVar(
+  "NETEASE_MUSIC_PASSWORD"
+);

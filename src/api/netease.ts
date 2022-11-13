@@ -1,3 +1,4 @@
+import { NETEASE_MUSIC_API_SERVER } from "config";
 import fetch from "node-fetch";
 import { store } from "store";
 
@@ -7,7 +8,7 @@ export async function neteaseApiRequest(path: string) {
     throw new Error("netease: cookie is not set, please login first");
   }
 
-  return fetch(`${store.getState().netease.server}${path}`, {
+  return fetch(`${NETEASE_MUSIC_API_SERVER}${path}`, {
     headers: {
       Cookie: cookie,
     },

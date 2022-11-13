@@ -13,33 +13,55 @@ async function migrateLike(
     },
     orderBy: {
       id: "desc",
-      liked: "desc",
     },
   });
   if (!spotify) {
     return null;
   }
-  if (spotify.liked) {
-    return spotify;
+
+  const spotifyAnyLikedSong = await prisma.synchronizationSpotifySong.findFirst(
+    {
+      where: {
+        spotifyId: spotifySong.track.id,
+        liked: true,
+      },
+      orderBy: {
+        id: "desc",
+      },
+    }
+  );
+  if (spotifyAnyLikedSong) {
+    console.log(`spotify: ${spotifySong.track.name}: like already migrated`);
+    return null;
   }
 
   const netease = await prisma.synchronizationNeteaseSong.findFirst({
     where: {
       neteaseId: spotify.neteaseId,
-      liked: true,
     },
     orderBy: {
       id: "desc",
-      liked: "desc",
     },
   });
-  if (netease?.liked) {
-    console.log(`netease: song ${netease.neteaseId} already liked`);
-    return spotify;
-  }
   if (!netease) {
-    console.log(`netease: song ${spotify.neteaseId} not found`);
-    return spotify;
+    console.warn(`netease: song ${spotify.neteaseId} not found`);
+    return null;
+  }
+
+  const neteaseAnyLikedSong = await prisma.synchronizationNeteaseSong.findFirst(
+    {
+      where: {
+        neteaseId: spotify.neteaseId,
+        liked: true,
+      },
+      orderBy: {
+        id: "desc",
+      },
+    }
+  );
+  if (neteaseAnyLikedSong) {
+    console.log(`netease: ${netease.name}: like already migrated`);
+    return null;
   }
 
   console.log(
