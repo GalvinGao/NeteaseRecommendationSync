@@ -12,15 +12,36 @@ export async function neteaseApiRequest(path: string) {
     headers: {
       Cookie: cookie,
     },
-  }).then((res) => {
-    if (res.status !== 200) {
-      console.log("netease: non-200 response for request", path, res.status);
-      throw new Error(
-        `netease: fetch failed (non-200 response code) ${res.status} ${res.statusText}`
-      );
-    }
-    return res;
-  });
+  })
+    .then((res) => {
+      if (res.status !== 200) {
+        console.log(
+          "netease: non-200 http status response for request",
+          path,
+          res.status
+        );
+        throw new Error(
+          `netease: fetch failed (non-200 http status response code) ${res.status} ${res.statusText}`
+        );
+      }
+      return res;
+    })
+    .then(async (res) => {
+      const json = (await res.json()) as any;
+      if (json.code !== 200) {
+        console.log(
+          "netease: non-200 body code response for request",
+          path,
+          json.code
+        );
+        throw new Error(
+          `netease: fetch failed (non-200 body code response code): ${
+            res.status
+          } ${JSON.stringify(json)}`
+        );
+      }
+      return json;
+    });
 }
 
 export interface NeteaseSong {
@@ -35,21 +56,19 @@ export async function getNeteaseRecommendations(): Promise<{
   recommendations: NeteaseSong[];
   original: any;
 }> {
-  const request = await neteaseApiRequest("/recommend/songs");
-  const list = (await request.json()) as any;
+  const json = await neteaseApiRequest("/recommend/songs");
   return {
-    recommendations: list.data.dailySongs.map((song: any) => ({
+    recommendations: json.data.dailySongs.map((song: any) => ({
       id: song.id,
       name: song.name,
       artists: song.ar.map((artist: any) => artist.name),
       album: song.al.name,
       reason: song.reason,
     })),
-    original: list,
+    original: json,
   };
 }
 
 export async function likeNeteaseMusic(id: number) {
-  const request = await neteaseApiRequest(`/like?id=${id}&like=true`);
-  return request.json();
+  return await neteaseApiRequest(`/like?id=${id}&like=true`);
 }
