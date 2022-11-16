@@ -69,6 +69,33 @@ export async function getNeteaseRecommendations(): Promise<{
   };
 }
 
+export async function getNeteaseRecommendPlayLists(): Promise<{
+  playLists: any[];
+}> {
+  const json = await neteaseApiRequest("/recommend/resource");  
+  return {
+    playLists: json.recommend,
+  };
+}
+
+export async function getNeteasePlayListAllTrack(id: number): Promise<{
+  tracks: NeteaseSong[];
+  original: any;
+}> {
+  const json = await neteaseApiRequest(`/playlist/track/all?id=${id}`);
+  return {
+    tracks: json.songs.map((song: any) => ({
+      id: song.id,
+      name: song.name,
+      artists: song.ar.map((artist: any) => artist.name),
+      album: song.al.name,
+      reason: "",
+    })),
+    original: json,
+  };
+}
+
+
 export async function likeNeteaseMusic(id: number) {
   return await neteaseApiRequest(`/like?id=${id}&like=true`);
 }
