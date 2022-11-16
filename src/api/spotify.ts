@@ -1,5 +1,6 @@
 import { getSpotifyAccessTokenWithRefreshToken } from 'action/spotifyAuth'
 import { NeteaseSong } from 'api/netease'
+import { logger } from 'modules/logger'
 import fetch, { RequestInit } from 'node-fetch'
 import { store } from 'store'
 
@@ -32,7 +33,13 @@ export async function spotifyApiRequest(
   }
 
   if (response.status >= 400 || json.error) {
-    console.log('spotify: non-200 response', response.status, json)
+    logger.error(
+      { status: response.status, body: json },
+      'spotify: non-200 response',
+    )
+    throw new Error(
+      `spotify: non-200 response: ${response.status} ${JSON.stringify(json)}`,
+    )
   }
 
   return json

@@ -68,7 +68,7 @@ export async function dispatchSyncRecommendations() {
           }
         }),
       )
-    ).filter((track) => track !== null)
+    ).filter((track) => !!track.uri)
     console.log('spotify: found ' + spotifyTracks.length + ' tracks')
 
     neteaseRecommendations.forEach((song) => {
