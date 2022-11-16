@@ -15,6 +15,7 @@
   "dependencies": {
     "@prisma/client": "^4.6.1",
     "@reduxjs/toolkit": "^1.8.6",
+    "NeteaseCloudMusicApi": "^4.8.2",
     "add": "^2.0.6",
     "async": "^3.2.4",
     "dotenv": "^16.0.3",

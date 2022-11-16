@@ -9,7 +9,7 @@ import { DateTime } from "luxon";
 import { prisma } from "prisma";
 import { store } from "store";
 import { schedulerLastSyncChanged } from "store/schedulerSlice";
-import { SYNC_LIKE, SYNC_RADAR } from "../config";
+import { SYNC_DAILY, SYNC_RADAR } from "../config";
 
 interface SyncContextSnapshot {
   syncId: string;
@@ -37,7 +37,7 @@ export async function dispatchSyncRecommendations() {
   const nowISO = now.toISO();
   const nowDateInShanghai = now.setZone("Asia/Shanghai").toFormat("yyyy-MM-dd");
   const syncId = `${nowDateInShanghai}_${now.toMillis()}`;
-  if(SYNC_LIKE){
+  if(SYNC_DAILY){
     let {
       recommendations: neteaseRecommendations,
       original: neteaseRecommendationsOriginal,
@@ -97,8 +97,7 @@ export async function dispatchSyncRecommendations() {
     let {playLists} = await getNeteaseRecommendPlayLists();
     let privateRadarId = playLists.find(playList=>(/^私人雷达/).test(playList.name))?.id || null
     let {
-      tracks:neteasePrivateRadarTracks,
-      original:neteasePrivateRadarTracksOriginal
+      tracks:neteasePrivateRadarTracks
     } = await getNeteasePlayListAllTrack(privateRadarId)
     console.log(
       "netease: got " + neteasePrivateRadarTracks.length + " song from privateRadar"
@@ -141,15 +140,6 @@ export async function dispatchSyncRecommendations() {
     console.log("spotify: created playlist " + spotifyPlaylistId);
     await addSpotifyTracks(spotifyPlaylistId, spotifyTrackUris);
     console.log("spotify: added tracks to playlist");
-  
-    // saveSyncRecommendationsDispatch({
-    //   syncId,
-    //   nowISO,
-    //   nowDateInShanghai,
-    //   neteasePrivateRadarTracks,
-    //   neteasePrivateRadarTracksOriginal,
-    //   spotifyTracks,
-    // });
   
   }
 

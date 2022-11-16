@@ -38,5 +38,5 @@ export const NETEASE_MUSIC_PASSWORD = getRequiredEnvVar(
 );
 
 
-export const SYNC_LIKE = getRequiredEnvVar("SYNC_LIKE")==='true';
+export const SYNC_DAILY = getRequiredEnvVar("SYNC_DAILY")==='true';
 export const SYNC_RADAR = getRequiredEnvVar("SYNC_RADAR")==='true';
