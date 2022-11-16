@@ -1,47 +1,27 @@
-import { NETEASE_MUSIC_API_SERVER } from "config";
-import fetch from "node-fetch";
 import { store } from "store";
+import { recommend_songs, recommend_resource ,playlist_track_all, like as likeRadio } from 'NeteaseCloudMusicApi'
 
-export async function neteaseApiRequest(path: string) {
-  const cookie = store.getState().netease.cookie;
+export function cookie (){
+  const cookie = store.getState().netease.cookie
   if (!cookie) {
     throw new Error("netease: cookie is not set, please login first");
   }
+  return cookie
+}
 
-  return fetch(`${NETEASE_MUSIC_API_SERVER}${path}`, {
-    headers: {
-      Cookie: cookie,
-    },
-  })
-    .then((res) => {
-      if (res.status !== 200) {
-        console.log(
-          "netease: non-200 http status response for request",
-          path,
-          res.status
-        );
-        throw new Error(
-          `netease: fetch failed (non-200 http status response code) ${res.status} ${res.statusText}`
-        );
-      }
-      return res;
-    })
-    .then(async (res) => {
-      const json = (await res.json()) as any;
-      if (json.code !== 200) {
-        console.log(
-          "netease: non-200 body code response for request",
-          path,
-          json.code
-        );
-        throw new Error(
-          `netease: fetch failed (non-200 body code response code): ${
-            res.status
-          } ${JSON.stringify(json)}`
-        );
-      }
-      return json;
-    });
+export function checkResponse (res:any){
+  if (res.status !== 200) {
+    console.log(
+      "netease: non-200 body code response for request",
+      res.status
+    );
+    throw new Error(
+      `netease: fetch failed (non-200 body code response code): ${
+        res.status
+      } ${res.body}`
+    );
+  }
+  return res.body;
 }
 
 export interface NeteaseSong {
@@ -56,9 +36,10 @@ export async function getNeteaseRecommendations(): Promise<{
   recommendations: NeteaseSong[];
   original: any;
 }> {
-  const json = await neteaseApiRequest("/recommend/songs");
+  const json = await recommend_songs({cookie:cookie()})
+  let res = checkResponse(json)
   return {
-    recommendations: json.data.dailySongs.map((song: any) => ({
+    recommendations: res.data.dailySongs.map((song: any) => ({
       id: song.id,
       name: song.name,
       artists: song.ar.map((artist: any) => artist.name),
@@ -72,9 +53,10 @@ export async function getNeteaseRecommendations(): Promise<{
 export async function getNeteaseRecommendPlayLists(): Promise<{
   playLists: any[];
 }> {
-  const json = await neteaseApiRequest("/recommend/resource");  
+  const json = await recommend_resource({cookie:cookie()});  
+  let res = checkResponse(json)
   return {
-    playLists: json.recommend,
+    playLists: res.recommend,
   };
 }
 
@@ -82,20 +64,21 @@ export async function getNeteasePlayListAllTrack(id: number): Promise<{
   tracks: NeteaseSong[];
   original: any;
 }> {
-  const json = await neteaseApiRequest(`/playlist/track/all?id=${id}`);
+  const json = await playlist_track_all({id,cookie:cookie()});
+  let res = checkResponse(json)
   return {
-    tracks: json.songs.map((song: any) => ({
+    tracks: res.songs.map((song: any) => ({
       id: song.id,
       name: song.name,
       artists: song.ar.map((artist: any) => artist.name),
       album: song.al.name,
       reason: "",
     })),
-    original: json,
+    original: res,
   };
 }
 
 
-export async function likeNeteaseMusic(id: number) {
-  return await neteaseApiRequest(`/like?id=${id}&like=true`);
+export async function likeNeteaseMusic(id: number,like: boolean=true) {
+  return await likeRadio({id,like});
 }

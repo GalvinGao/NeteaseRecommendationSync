@@ -97,8 +97,7 @@ export async function dispatchSyncRecommendations() {
     let {playLists} = await getNeteaseRecommendPlayLists();
     let privateRadarId = playLists.find(playList=>(/^私人雷达/).test(playList.name))?.id || null
     let {
-      tracks:neteasePrivateRadarTracks,
-      original:neteasePrivateRadarTracksOriginal
+      tracks:neteasePrivateRadarTracks
     } = await getNeteasePlayListAllTrack(privateRadarId)
     console.log(
       "netease: got " + neteasePrivateRadarTracks.length + " song from privateRadar"
@@ -141,15 +140,6 @@ export async function dispatchSyncRecommendations() {
     console.log("spotify: created playlist " + spotifyPlaylistId);
     await addSpotifyTracks(spotifyPlaylistId, spotifyTrackUris);
     console.log("spotify: added tracks to playlist");
-  
-    // saveSyncRecommendationsDispatch({
-    //   syncId,
-    //   nowISO,
-    //   nowDateInShanghai,
-    //   neteasePrivateRadarTracks,
-    //   neteasePrivateRadarTracksOriginal,
-    //   spotifyTracks,
-    // });
   
   }
 
