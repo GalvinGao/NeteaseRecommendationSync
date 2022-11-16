@@ -16,8 +16,6 @@
 
    1. `NETEASE_MUSIC_PHONE` 和 `NETEASE_MUSIC_PASSWORD` 为网易云音乐账号的手机号和密码。
 
-   1. `NETEASE_MUSIC_API_SERVER` 为 NeteaseCloudMusicApi 服务地址（参照 [NeteaseCloudMusicApi 文档 - 安装](https://neteasecloudmusicapi.vercel.app/#/?id=%e5%ae%89%e8%a3%85)；运行本项目前需先行启动 NeteaseCloudMusicApi）
-
 1. 配置修改完毕后，使用 `npm run start` 启动本服务
 1. 留意 Console 信息，你将需要通过 Spotify OAuth 授权本服务访问你的 Spotify 账号
 1. 授权通过并完成首次同步后，本项目将会：
