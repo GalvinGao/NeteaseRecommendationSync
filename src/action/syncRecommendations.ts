@@ -9,7 +9,7 @@ import { DateTime } from "luxon";
 import { prisma } from "prisma";
 import { store } from "store";
 import { schedulerLastSyncChanged } from "store/schedulerSlice";
-import { SYNC_LIKE, SYNC_RADAR } from "../config";
+import { SYNC_DAILY, SYNC_RADAR } from "../config";
 
 interface SyncContextSnapshot {
   syncId: string;
@@ -37,7 +37,7 @@ export async function dispatchSyncRecommendations() {
   const nowISO = now.toISO();
   const nowDateInShanghai = now.setZone("Asia/Shanghai").toFormat("yyyy-MM-dd");
   const syncId = `${nowDateInShanghai}_${now.toMillis()}`;
-  if(SYNC_LIKE){
+  if(SYNC_DAILY){
     let {
       recommendations: neteaseRecommendations,
       original: neteaseRecommendationsOriginal,
