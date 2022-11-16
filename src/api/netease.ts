@@ -1,12 +1,14 @@
 import {
-  like as likeRadio,
-  playlist_track_all,
-  recommend_resource,
-  recommend_songs,
+  login_cellphone,
+  recommend_resource as neteaseGetPersonalFM,
+  playlist_track_all as neteaseGetPlaylistTracks,
+  recommend_songs as neteaseGetRecommendations,
+  like as neteaseLikeResource,
+  user_account,
 } from 'NeteaseCloudMusicApi'
 import { store } from 'store'
 
-export function cookie() {
+function getNeteaseAuthCookie() {
   const cookie = store.getState().netease.cookie
   if (!cookie) {
     throw new Error('netease: cookie is not set, please login first')
@@ -14,7 +16,7 @@ export function cookie() {
   return cookie
 }
 
-export function checkResponse(res: any) {
+function processNeteaseResponse(res: any) {
   if (res.status !== 200) {
     console.log('netease: non-200 body code response for request', res.status)
     throw new Error(
@@ -32,12 +34,15 @@ export interface NeteaseSong {
   reason: string
   spotifyId?: string
 }
+
 export async function getNeteaseRecommendations(): Promise<{
   recommendations: NeteaseSong[]
   original: any
 }> {
-  const json = await recommend_songs({ cookie: cookie() })
-  const res = checkResponse(json)
+  const json = await neteaseGetRecommendations({
+    cookie: getNeteaseAuthCookie(),
+  })
+  const res = processNeteaseResponse(json)
   return {
     recommendations: res.data.dailySongs.map((song: any) => ({
       id: song.id,
@@ -53,8 +58,8 @@ export async function getNeteaseRecommendations(): Promise<{
 export async function getNeteaseRecommendPlayLists(): Promise<{
   playLists: any[]
 }> {
-  const json = await recommend_resource({ cookie: cookie() })
-  const res = checkResponse(json)
+  const json = await neteaseGetPersonalFM({ cookie: getNeteaseAuthCookie() })
+  const res = processNeteaseResponse(json)
   return {
     playLists: res.recommend,
   }
@@ -64,8 +69,11 @@ export async function getNeteasePlayListAllTrack(id: number): Promise<{
   tracks: NeteaseSong[]
   original: any
 }> {
-  const json = await playlist_track_all({ id, cookie: cookie() })
-  const res = checkResponse(json)
+  const json = await neteaseGetPlaylistTracks({
+    id,
+    cookie: getNeteaseAuthCookie(),
+  })
+  const res = processNeteaseResponse(json)
   return {
     tracks: res.songs.map((song: any) => ({
       id: song.id,
@@ -79,5 +87,20 @@ export async function getNeteasePlayListAllTrack(id: number): Promise<{
 }
 
 export async function likeNeteaseMusic(id: number, like: boolean = true) {
-  return await likeRadio({ id, like })
+  return await neteaseLikeResource({ id, like })
+}
+
+export async function loginNeteaseViaPhone(
+  phone: string,
+  password: string,
+): Promise<any> {
+  const json = await login_cellphone({ phone, password })
+  const res = processNeteaseResponse(json)
+  return res
+}
+
+export async function getNeteaseUserDetail() {
+  const json = await user_account({ cookie: getNeteaseAuthCookie() })
+  const res = processNeteaseResponse(json)
+  return res
 }

@@ -1,18 +1,14 @@
-import { login_cellphone, user_account } from 'NeteaseCloudMusicApi'
-import { checkResponse, cookie } from 'api/netease'
+import { getNeteaseUserDetail, loginNeteaseViaPhone } from 'api/netease'
 import { NETEASE_MUSIC_PASSWORD, NETEASE_MUSIC_PHONE } from 'config'
 import { store } from 'store'
 import { neteaseLoggedIn } from 'store/neteaseSlice'
 
 async function neteaseVerifyTokenValidity() {
-  const auth = store.getState().netease.cookie
-  if (!auth) return false
-
   try {
-    await user_account({ cookie: cookie() })
+    await getNeteaseUserDetail()
     return true
   } catch (e) {
-    console.log('netease: token invalid, re-authenticating')
+    console.warn('netease: token invalid')
   }
 
   return false
@@ -20,14 +16,13 @@ async function neteaseVerifyTokenValidity() {
 
 async function initiateNeteaseAuth() {
   console.log('netease: authenticating using phone and password')
-  const response = await login_cellphone({
-    phone: NETEASE_MUSIC_PHONE,
-    password: NETEASE_MUSIC_PASSWORD,
-  })
-  const json = checkResponse(response)
+  const response = await loginNeteaseViaPhone(
+    NETEASE_MUSIC_PHONE,
+    NETEASE_MUSIC_PASSWORD,
+  )
   console.log('netease: successfully logged in')
 
-  store.dispatch(neteaseLoggedIn('MUSIC_U=' + json.token))
+  store.dispatch(neteaseLoggedIn('MUSIC_U=' + response.token))
 }
 
 export async function dispatchNeteaseAuth() {
