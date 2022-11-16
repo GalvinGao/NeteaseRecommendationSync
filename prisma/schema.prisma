@@ -28,7 +28,7 @@ model SynchronizationNeteaseSong {
   name      String
   artists   String
   album     String
-  reason    String
+  reason    String?
   spotifyId String?
   liked     Boolean         @default(false)
 
