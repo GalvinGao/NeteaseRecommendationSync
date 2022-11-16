@@ -36,3 +36,7 @@ export const NETEASE_MUSIC_PHONE = getRequiredEnvVar("NETEASE_MUSIC_PHONE");
 export const NETEASE_MUSIC_PASSWORD = getRequiredEnvVar(
   "NETEASE_MUSIC_PASSWORD"
 );
+
+
+export const SYNC_LIKE = getRequiredEnvVar("SYNC_LIKE")==='true';
+export const SYNC_RADAR = getRequiredEnvVar("SYNC_RADAR")==='true';
