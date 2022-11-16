@@ -8,7 +8,8 @@
     "run": "esno src/index.ts",
     "db:sync": "npx prisma generate && npx prisma db push",
     "postinstall": "npm run db:sync",
-    "lint": "eslint --ext .ts src"
+    "lint": "eslint --ext .ts src",
+    "lint:fix": "eslint --ext .ts src --fix"
   },
   "author": "",
   "license": "ISC",

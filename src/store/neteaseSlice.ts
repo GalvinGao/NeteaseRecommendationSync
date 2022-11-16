@@ -1,23 +1,23 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 interface NeteaseState {
-  cookie: string | null;
+  cookie: string | null
 }
 
 const initialState: NeteaseState = {
   cookie: null,
-};
+}
 
 export const neteaseSlice = createSlice({
-  name: "netease",
+  name: 'netease',
   initialState,
   reducers: {
     neteaseLoggedIn: (state, action: PayloadAction<string | null>) => {
-      state.cookie = action.payload;
+      state.cookie = action.payload
     },
   },
-});
+})
 
-export const { neteaseLoggedIn } = neteaseSlice.actions;
+export const { neteaseLoggedIn } = neteaseSlice.actions
 
-export default neteaseSlice.reducer;
+export const neteaseReducer = neteaseSlice.reducer

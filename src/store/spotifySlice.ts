@@ -1,37 +1,37 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 interface SpotifyState {
-  auth: SpotifyAuthStateLoggedIn | SpotifyAuthStateEmpty;
+  auth: SpotifyAuthStateLoggedIn | SpotifyAuthStateEmpty
 }
 
 interface SpotifyAuthStateLoggedIn {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
+  accessToken: string
+  refreshToken: string
+  expiresAt: number
 }
 
-type SpotifyAuthStateEmpty = null;
+type SpotifyAuthStateEmpty = null
 
 const initialState: SpotifyState = {
   auth: null,
-};
+}
 
 export const spotifySlice = createSlice({
-  name: "spotify",
+  name: 'spotify',
   initialState,
   reducers: {
     spotifyLoggedIn: (
       state,
-      action: PayloadAction<SpotifyAuthStateLoggedIn>
+      action: PayloadAction<SpotifyAuthStateLoggedIn>,
     ) => {
-      state.auth = action.payload;
+      state.auth = action.payload
     },
     spotifyLoggedOut: (state) => {
-      state.auth = null;
+      state.auth = null
     },
   },
-});
+})
 
-export const { spotifyLoggedIn, spotifyLoggedOut } = spotifySlice.actions;
+export const { spotifyLoggedIn, spotifyLoggedOut } = spotifySlice.actions
 
-export default spotifySlice.reducer;
+export const spotifyReducer = spotifySlice.reducer

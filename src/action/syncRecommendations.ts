@@ -1,89 +1,94 @@
-import { getNeteaseRecommendations, NeteaseSong ,getNeteaseRecommendPlayLists ,getNeteasePlayListAllTrack} from "api/netease";
+import { SYNC_DAILY, SYNC_RADAR } from '../config'
+import {
+  NeteaseSong,
+  getNeteasePlayListAllTrack,
+  getNeteaseRecommendPlayLists,
+  getNeteaseRecommendations,
+} from 'api/netease'
 import {
   addSpotifyTracks,
   createSpotifyPlaylist,
   searchSpotify,
-} from "api/spotify";
-import { mkdir, writeFile } from "fs/promises";
-import { DateTime } from "luxon";
-import { prisma } from "prisma";
-import { store } from "store";
-import { schedulerLastSyncChanged } from "store/schedulerSlice";
-import { SYNC_DAILY, SYNC_RADAR } from "../config";
+} from 'api/spotify'
+import { mkdir, writeFile } from 'fs/promises'
+import { DateTime } from 'luxon'
+import { prisma } from 'prisma'
+import { store } from 'store'
+import { schedulerLastSyncChanged } from 'store/schedulerSlice'
 
 interface SyncContextSnapshot {
-  syncId: string;
-  neteaseRecommendations: any;
-  spotifyTracks: any;
-  summaryText: string;
+  syncId: string
+  neteaseRecommendations: any
+  spotifyTracks: any
+  summaryText: string
 }
 
 async function saveSyncContextSnapshot(syncContext: SyncContextSnapshot) {
-  const base = `state/snapshots/${syncContext.syncId}`;
-  await mkdir(base, { recursive: true });
+  const base = `state/snapshots/${syncContext.syncId}`
+  await mkdir(base, { recursive: true })
   await writeFile(
     `${base}/netease-recommendations.json`,
-    JSON.stringify(syncContext.neteaseRecommendations, null, 2)
-  );
+    JSON.stringify(syncContext.neteaseRecommendations, null, 2),
+  )
   await writeFile(
     `${base}/spotify-tracks.json`,
-    JSON.stringify(syncContext.spotifyTracks, null, 2)
-  );
-  await writeFile(`${base}/summary.md`, syncContext.summaryText);
+    JSON.stringify(syncContext.spotifyTracks, null, 2),
+  )
+  await writeFile(`${base}/summary.md`, syncContext.summaryText)
 }
 
 export async function dispatchSyncRecommendations() {
-  const now = DateTime.now();
-  const nowISO = now.toISO();
-  const nowDateInShanghai = now.setZone("Asia/Shanghai").toFormat("yyyy-MM-dd");
-  const syncId = `${nowDateInShanghai}_${now.toMillis()}`;
-  if(SYNC_DAILY){
-    let {
+  const now = DateTime.now()
+  const nowISO = now.toISO()
+  const nowDateInShanghai = now.setZone('Asia/Shanghai').toFormat('yyyy-MM-dd')
+  const syncId = `${nowDateInShanghai}_${now.toMillis()}`
+  if (SYNC_DAILY) {
+    const {
       recommendations: neteaseRecommendations,
       original: neteaseRecommendationsOriginal,
-    } = await getNeteaseRecommendations();
+    } = await getNeteaseRecommendations()
     console.log(
-      "netease: got " + neteaseRecommendations.length + " recommendations"
-    );
-  
+      'netease: got ' + neteaseRecommendations.length + ' recommendations',
+    )
+
     const spotifyTracks = (
       await Promise.all(
         neteaseRecommendations.map(async (song) => {
-          const track = await searchSpotify(song);
+          const track = await searchSpotify(song)
           if (!track) {
-            console.log(`spotify: ${song.name} not found`);
+            console.log(`spotify: ${song.name} not found`)
           }
           return {
             ...track,
             originalId: song.id,
             originalName: song.name,
-            originalArtists: song.artists.join(", "),
+            originalArtists: song.artists.join(', '),
             originalAlbum: song.album,
             originalReason: song.reason,
-          };
-        })
+          }
+        }),
       )
-    ).filter((track) => track !== null);
-    console.log("spotify: found " + spotifyTracks.length + " tracks");
-  
+    ).filter((track) => track !== null)
+    console.log('spotify: found ' + spotifyTracks.length + ' tracks')
+
     neteaseRecommendations.forEach((song) => {
-      const track = spotifyTracks.find((track) => track.originalId === song.id);
+      const track = spotifyTracks.find((track) => track.originalId === song.id)
       if (!track) {
-        console.log(`spotify: ${song.name} not found`);
+        console.log(`spotify: ${song.name} not found`)
       } else {
-        song.spotifyId = track.id;
+        song.spotifyId = track.id
       }
-    });
-  
-    const spotifyTrackUris = spotifyTracks.map((track) => track.uri);
+    })
+
+    const spotifyTrackUris = spotifyTracks.map((track) => track.uri)
     const spotifyPlaylistId = await createSpotifyPlaylist(
-      "Netease Daily " + nowDateInShanghai,
-      `Netease Daily crawled at ${nowISO}`
-    );
-    console.log("spotify: created playlist " + spotifyPlaylistId);
-    await addSpotifyTracks(spotifyPlaylistId, spotifyTrackUris);
-    console.log("spotify: added tracks to playlist");
-  
+      'Netease Daily ' + nowDateInShanghai,
+      `Netease Daily crawled at ${nowISO}`,
+    )
+    console.log('spotify: created playlist ' + spotifyPlaylistId)
+    await addSpotifyTracks(spotifyPlaylistId, spotifyTrackUris)
+    console.log('spotify: added tracks to playlist')
+
     saveSyncRecommendationsDispatch({
       syncId,
       nowISO,
@@ -91,61 +96,61 @@ export async function dispatchSyncRecommendations() {
       neteaseRecommendations,
       neteaseRecommendationsOriginal,
       spotifyTracks,
-    });
+    })
   }
-  if(SYNC_RADAR){
-    let {playLists} = await getNeteaseRecommendPlayLists();
-    let privateRadarId = playLists.find(playList=>(/^私人雷达/).test(playList.name))?.id || null
-    let {
-      tracks:neteasePrivateRadarTracks
-    } = await getNeteasePlayListAllTrack(privateRadarId)
+  if (SYNC_RADAR) {
+    const { playLists } = await getNeteaseRecommendPlayLists()
+    const privateRadarId =
+      playLists.find((playList) => /^私人雷达/.test(playList.name))?.id || null
+    const { tracks: neteasePrivateRadarTracks } =
+      await getNeteasePlayListAllTrack(privateRadarId)
     console.log(
-      "netease: got " + neteasePrivateRadarTracks.length + " song from privateRadar"
-    );
-  
+      'netease: got ' +
+        neteasePrivateRadarTracks.length +
+        ' song from privateRadar',
+    )
+
     const spotifyTracks = (
       await Promise.all(
         neteasePrivateRadarTracks.map(async (song) => {
-          const track = await searchSpotify(song);
+          const track = await searchSpotify(song)
           if (!track) {
-            console.log(`spotify: ${song.name} not found`);
+            console.log(`spotify: ${song.name} not found`)
           }
           return {
             ...track,
             originalId: song.id,
             originalName: song.name,
-            originalArtists: song.artists.join(", "),
+            originalArtists: song.artists.join(', '),
             originalAlbum: song.album,
             originalReason: song.reason,
-          };
-        })
+          }
+        }),
       )
-    ).filter((track) => track !== null);
-    console.log("spotify: found " + spotifyTracks.length + " tracks");
-  
+    ).filter((track) => track !== null)
+    console.log('spotify: found ' + spotifyTracks.length + ' tracks')
+
     neteasePrivateRadarTracks.forEach((song) => {
-      const track = spotifyTracks.find((track) => track.originalId === song.id);
+      const track = spotifyTracks.find((track) => track.originalId === song.id)
       if (!track) {
-        console.log(`spotify: ${song.name} not found`);
+        console.log(`spotify: ${song.name} not found`)
       } else {
-        song.spotifyId = track.id;
+        song.spotifyId = track.id
       }
-    });
-  
-    const spotifyTrackUris = spotifyTracks.map((track) => track.uri);
+    })
+
+    const spotifyTrackUris = spotifyTracks.map((track) => track.uri)
     const spotifyPlaylistId = await createSpotifyPlaylist(
-      "Netease privateRadar " + nowDateInShanghai,
-      `Netease privateRadar crawled at ${nowISO}`
-    );
-    console.log("spotify: created playlist " + spotifyPlaylistId);
-    await addSpotifyTracks(spotifyPlaylistId, spotifyTrackUris);
-    console.log("spotify: added tracks to playlist");
-  
+      'Netease privateRadar ' + nowDateInShanghai,
+      `Netease privateRadar crawled at ${nowISO}`,
+    )
+    console.log('spotify: created playlist ' + spotifyPlaylistId)
+    await addSpotifyTracks(spotifyPlaylistId, spotifyTrackUris)
+    console.log('spotify: added tracks to playlist')
   }
 
-  
-  store.dispatch(schedulerLastSyncChanged(nowISO));
-  console.log("finished syncing recommendations at " + nowISO);
+  store.dispatch(schedulerLastSyncChanged(nowISO))
+  console.log('finished syncing recommendations at ' + nowISO)
 }
 
 async function saveSyncRecommendationsDispatch({
@@ -156,12 +161,12 @@ async function saveSyncRecommendationsDispatch({
   neteaseRecommendationsOriginal,
   spotifyTracks,
 }: {
-  syncId: string;
-  nowISO: string;
-  nowDateInShanghai: string;
-  neteaseRecommendations: NeteaseSong[];
-  neteaseRecommendationsOriginal: any;
-  spotifyTracks: any[];
+  syncId: string
+  nowISO: string
+  nowDateInShanghai: string
+  neteaseRecommendations: NeteaseSong[]
+  neteaseRecommendationsOriginal: any
+  spotifyTracks: any[]
 }) {
   const summary = `## Netease Daily crawled at ${nowISO}
 
@@ -169,18 +174,18 @@ async function saveSyncRecommendationsDispatch({
 ${spotifyTracks
   .map(
     (track) =>
-      `- ${track.originalName} (${track.originalArtists}) - ${track.originalAlbum} - ${track.originalReason}`
+      `- ${track.originalName} (${track.originalArtists}) - ${track.originalAlbum} - ${track.originalReason}`,
   )
-  .join("\n")}`;
+  .join('\n')}`
 
   await saveSyncContextSnapshot({
     syncId,
     neteaseRecommendations: neteaseRecommendationsOriginal,
     spotifyTracks: spotifyTracks,
     summaryText: summary,
-  });
+  })
 
-  console.log("saved sync context snapshot");
+  console.log('saved sync context snapshot')
 
   const synchronization = await prisma.synchronization.create({
     data: {
@@ -207,7 +212,7 @@ ${spotifyTracks
         })),
       },
     },
-  });
+  })
 
-  console.log("saved synchronization to database: " + synchronization.id);
+  console.log('saved synchronization to database: ' + synchronization.id)
 }

@@ -1,22 +1,23 @@
-import { SynchronizationSpotifySong } from "@prisma/client";
-import { likeNeteaseMusic } from "api/netease";
-import { listSpotifyLikedSongs } from "api/spotify";
-import pLimit from "p-limit";
-import { prisma } from "prisma";
+import { SynchronizationSpotifySong } from '@prisma/client'
+
+import { likeNeteaseMusic } from 'api/netease'
+import { listSpotifyLikedSongs } from 'api/spotify'
+import pLimit from 'p-limit'
+import { prisma } from 'prisma'
 
 async function migrateLike(
-  spotifySong: any
+  spotifySong: any,
 ): Promise<SynchronizationSpotifySong | null> {
   const spotify = await prisma.synchronizationSpotifySong.findFirst({
     where: {
       spotifyId: spotifySong.track.id,
     },
     orderBy: {
-      id: "desc",
+      id: 'desc',
     },
-  });
+  })
   if (!spotify) {
-    return null;
+    return null
   }
 
   const spotifyAnyLikedSong = await prisma.synchronizationSpotifySong.findFirst(
@@ -26,13 +27,13 @@ async function migrateLike(
         liked: true,
       },
       orderBy: {
-        id: "desc",
+        id: 'desc',
       },
-    }
-  );
+    },
+  )
   if (spotifyAnyLikedSong) {
-    console.log(`spotify: ${spotifySong.track.name}: like already migrated`);
-    return null;
+    console.log(`spotify: ${spotifySong.track.name}: like already migrated`)
+    return null
   }
 
   const netease = await prisma.synchronizationNeteaseSong.findFirst({
@@ -40,12 +41,12 @@ async function migrateLike(
       neteaseId: spotify.neteaseId,
     },
     orderBy: {
-      id: "desc",
+      id: 'desc',
     },
-  });
+  })
   if (!netease) {
-    console.warn(`netease: song ${spotify.neteaseId} not found`);
-    return null;
+    console.warn(`netease: song ${spotify.neteaseId} not found`)
+    return null
   }
 
   const neteaseAnyLikedSong = await prisma.synchronizationNeteaseSong.findFirst(
@@ -55,23 +56,23 @@ async function migrateLike(
         liked: true,
       },
       orderBy: {
-        id: "desc",
+        id: 'desc',
       },
-    }
-  );
+    },
+  )
   if (neteaseAnyLikedSong) {
-    console.log(`netease: ${netease.name}: like already migrated`);
-    return null;
+    console.log(`netease: ${netease.name}: like already migrated`)
+    return null
   }
 
   console.log(
-    "migrating like",
+    'migrating like',
     spotifySong.track.name,
     `(spotifyId=${spotifySong.track.id}, neteaseId=${spotify.neteaseId})`,
-    "to",
-    spotify.neteaseId
-  );
-  await likeNeteaseMusic(spotify.neteaseId);
+    'to',
+    spotify.neteaseId,
+  )
+  await likeNeteaseMusic(spotify.neteaseId)
 
   await prisma.synchronizationNeteaseSong.update({
     where: {
@@ -80,7 +81,7 @@ async function migrateLike(
     data: {
       liked: true,
     },
-  });
+  })
 
   await prisma.synchronizationSpotifySong.update({
     where: {
@@ -89,28 +90,28 @@ async function migrateLike(
     data: {
       liked: true,
     },
-  });
+  })
 
-  return spotify;
+  return spotify
 }
 
 export async function dispatchMigrateLikes() {
-  const likes = await listSpotifyLikedSongs({ max: 60 }); // list recent 60 likes
-  console.log("spotify: got " + likes.length + " liked songs");
+  const likes = await listSpotifyLikedSongs({ max: 60 }) // list recent 60 likes
+  console.log('spotify: got ' + likes.length + ' liked songs')
 
-  const limiter = pLimit(1); // netease has got a very strict rate limit so we need to limit the concurrency
+  const limiter = pLimit(1) // netease has got a very strict rate limit so we need to limit the concurrency
 
   const migrations = await (Promise.all(
-    likes.map((song) => limiter(() => migrateLike(song)))
-  ) as Promise<(SynchronizationSpotifySong | null)[]>);
+    likes.map((song) => limiter(() => migrateLike(song))),
+  ) as Promise<(SynchronizationSpotifySong | null)[]>)
   const migrated = migrations.filter(
-    (m) => m !== null
-  ) as SynchronizationSpotifySong[];
+    (m) => m !== null,
+  ) as SynchronizationSpotifySong[]
 
   console.log(
-    "migrate likes: done; migrated: " +
+    'migrate likes: done; migrated: ' +
       migrated.length +
-      " songs: " +
-      migrated.map((m) => m.name).join(", ")
-  );
+      ' songs: ' +
+      migrated.map((m) => m.name).join(', '),
+  )
 }
