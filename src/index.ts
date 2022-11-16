@@ -2,9 +2,8 @@ import { dispatchMigrateLikes } from 'action/migrateLikes'
 import { dispatchNeteaseAuth } from 'action/neteaseAuth'
 import { schedulerShouldSkip } from 'action/scheduler'
 import { dispatchSpotifyAuth } from 'action/spotifyAuth'
-import { dispatchSyncRecommendations } from 'action/syncRecommendations'
+import { dispatchSyncRecommendations } from 'action/sync/dispatcher'
 import { SYNC_TIME_PARSED, SYNC_TIME_TZ } from 'config'
-import { logger } from 'modules/logger'
 import { addSchedule } from 'modules/scheduler'
 
 async function sync() {
@@ -12,12 +11,10 @@ async function sync() {
   await dispatchNeteaseAuth()
   await dispatchSpotifyAuth()
   await dispatchSyncRecommendations()
-  logger.info('update finished')
 }
 
 async function migrate() {
   await dispatchMigrateLikes()
-  logger.info('likes migration finished')
 }
 
 async function main() {

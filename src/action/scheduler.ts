@@ -1,5 +1,6 @@
 import { SYNC_TIME } from 'config'
 import { DateTime } from 'luxon'
+import { logger } from 'modules/logger'
 import { store } from 'store'
 
 export async function schedulerShouldSkip() {
@@ -13,7 +14,9 @@ export async function schedulerShouldSkip() {
   // If the last sync is after the cut time of today, we should skip (we already synced today)
   const shouldSkip = lastSyncDate > cutTimeOfToday
   if (shouldSkip) {
-    console.log('scheduler: skipping due to already synced at ' + lastSync)
+    logger.info(
+      `scheduler: skipping due to already synced at ${lastSyncDate.toString()}`,
+    )
   }
   return shouldSkip
 }

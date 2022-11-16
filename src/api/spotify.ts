@@ -1,4 +1,4 @@
-import { getSpotifyAccessTokenWithRefreshToken } from 'action/spotifyAuth'
+import { refreshSpotifyAccessToken } from 'action/spotifyAuth'
 import { NeteaseSong } from 'api/netease'
 import { logger } from 'modules/logger'
 import fetch, { RequestInit } from 'node-fetch'
@@ -12,9 +12,9 @@ export async function spotifyApiRequest(
   if (!auth) throw new Error('spotify: not logged in')
 
   if (auth.expiresAt < Date.now()) {
-    console.log('spotify: access token expired (by time), refreshing')
+    logger.info('spotify: access token expired (by time), refreshing')
     // refresh token
-    await getSpotifyAccessTokenWithRefreshToken()
+    await refreshSpotifyAccessToken()
   }
 
   const response = await fetch('https://api.spotify.com' + path, {
@@ -26,9 +26,9 @@ export async function spotifyApiRequest(
   })
   const json = (await response.json()) as any
   if (json.error && json.error.status === 401) {
-    console.log('spotify: access token expired (by response body), refreshing')
+    logger.info('spotify: access token expired (by response body), refreshing')
     // refresh token
-    await getSpotifyAccessTokenWithRefreshToken()
+    await refreshSpotifyAccessToken()
     return spotifyApiRequest(path, init)
   }
 
@@ -52,7 +52,7 @@ export async function searchSpotify(song: NeteaseSong) {
     // ...(song.album ? [`album:${song.album}`] : []),
   ].join(' ')
 
-  console.log(`searching for ${JSON.stringify(song)} with query "${query}"`)
+  logger.debug({ song }, `spotify: searching song with query "${query}"`)
 
   const response = await spotifyApiRequest(
     `/v1/search?q=${encodeURIComponent(query)}&type=track&limit=1`,

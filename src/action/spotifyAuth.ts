@@ -52,7 +52,7 @@ async function getSpotifyAccessTokenWithOAuthAuthorizationCode(
   return json
 }
 
-export async function getSpotifyAccessTokenWithRefreshToken() {
+export async function refreshSpotifyAccessToken() {
   const auth = store.getState().spotify.auth
   if (!auth) throw new Error('spotify: not logged in')
 
@@ -90,7 +90,7 @@ export async function spotifyVerifyTokenValidity() {
     )
     // refresh token
     try {
-      await getSpotifyAccessTokenWithRefreshToken()
+      await refreshSpotifyAccessToken()
       return true
     } catch (err) {
       logger.error(
@@ -147,8 +147,8 @@ async function initiateSpotifyOAuth() {
 
     server.listen(OAUTH_REDIRECT_SERVER_PORT, () => {
       // open spotify auth url in browser
-      console.log(
-        'Open this URL in your browser to continue with Spotify OAuth:',
+      logger.info(
+        'spotify: auth: Open this URL in your browser to continue with Spotify OAuth:',
         authUrl,
       )
     })

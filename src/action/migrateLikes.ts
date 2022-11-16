@@ -2,6 +2,7 @@ import { SynchronizationSpotifySong } from '@prisma/client'
 
 import { likeNeteaseMusic } from 'api/netease'
 import { listSpotifyLikedSongs } from 'api/spotify'
+import { logger } from 'modules/logger'
 import pLimit from 'p-limit'
 import { prisma } from 'prisma'
 
@@ -32,7 +33,9 @@ async function migrateLike(
     },
   )
   if (spotifyAnyLikedSong) {
-    console.log(`spotify: ${spotifySong.track.name}: like already migrated`)
+    logger.info(
+      `like migration: song "${spotifySong.track.name}": like already migrated`,
+    )
     return null
   }
 
@@ -45,7 +48,7 @@ async function migrateLike(
     },
   })
   if (!netease) {
-    console.warn(`netease: song ${spotify.neteaseId} not found`)
+    logger.warn(`like migration: netease: song ${spotify.neteaseId} not found`)
     return null
   }
 
@@ -61,16 +64,12 @@ async function migrateLike(
     },
   )
   if (neteaseAnyLikedSong) {
-    console.log(`netease: ${netease.name}: like already migrated`)
+    logger.info(`like migration: song "${netease.name}": like already migrated`)
     return null
   }
 
-  console.log(
-    'migrating like',
-    spotifySong.track.name,
-    `(spotifyId=${spotifySong.track.id}, neteaseId=${spotify.neteaseId})`,
-    'to',
-    spotify.neteaseId,
+  logger.info(
+    `like migration: migrating song "${spotifySong.track.name}" to netease with neteaseId ${spotify.neteaseId}`,
   )
   await likeNeteaseMusic(spotify.neteaseId)
 
@@ -97,7 +96,7 @@ async function migrateLike(
 
 export async function dispatchMigrateLikes() {
   const likes = await listSpotifyLikedSongs({ max: 60 }) // list recent 60 likes
-  console.log('spotify: got ' + likes.length + ' liked songs')
+  logger.info(`spotify: got ${likes.length} liked songs`)
 
   const limiter = pLimit(1) // netease has got a very strict rate limit so we need to limit the concurrency
 
@@ -108,10 +107,10 @@ export async function dispatchMigrateLikes() {
     (m) => m !== null,
   ) as SynchronizationSpotifySong[]
 
-  console.log(
-    'migrate likes: done; migrated: ' +
-      migrated.length +
-      ' songs: ' +
-      migrated.map((m) => m.name).join(', '),
+  logger.info(
+    {
+      songs: migrated.map((m) => m.name),
+    },
+    `migrate likes: migrated ${migrated.length} songs`,
   )
 }

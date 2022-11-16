@@ -6,6 +6,7 @@ import {
   like as neteaseLikeResource,
   user_account,
 } from 'NeteaseCloudMusicApi'
+import { logger } from 'modules/logger'
 import { store } from 'store'
 
 function getNeteaseAuthCookie() {
@@ -18,7 +19,13 @@ function getNeteaseAuthCookie() {
 
 function processNeteaseResponse(res: any) {
   if (res.status !== 200) {
-    console.log('netease: non-200 body code response for request', res.status)
+    logger.warn(
+      {
+        status: res.status,
+        body: res.body,
+      },
+      'netease: non-200 body code response for request',
+    )
     throw new Error(
       `netease: fetch failed (non-200 body code response code): ${res.status} ${res.body}`,
     )
