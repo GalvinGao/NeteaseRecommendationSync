@@ -1,24 +1,30 @@
 import {
   getNeteasePlayListAllTrack,
   getNeteaseUserDetail,
-  getNeteaseUserPlaylist
+  getNeteaseUserPlaylist,
 } from 'api/netease'
-import { DateTime } from 'luxon'
 import { addSpotifyTracks, createSpotifyPlaylist } from 'api/spotify'
+import { DateTime } from 'luxon'
 import { logger } from 'modules/logger'
 import { resolveSpotifySongsFromNeteaseSongs } from 'modules/spotifyResolver'
 
 export async function syncNeteaseLikelist() {
-    const now = DateTime.now()
-    const nowISO = now.toISO()
-    const nowDateInShanghai = now.setZone('Asia/Shanghai').toFormat('yyyy-MM-dd')
+  const now = DateTime.now()
+  const nowISO = now.toISO()
+  const nowDateInShanghai = now.setZone('Asia/Shanghai').toFormat('yyyy-MM-dd')
 
-    const userDetail = await getNeteaseUserDetail()
-    const subcount = await getNeteaseUserPlaylist(userDetail.account.id)
-    const likelistNameReg = new RegExp(`^${userDetail.profile.nickname}喜欢的音乐$`)
-    const userLikeList = subcount.playlist.find(playList=>likelistNameReg.test(playList.name)) || subcount.playlist[0]
-    const { tracks: neteaseLikelistTracks } = await getNeteasePlayListAllTrack(userLikeList.id)
-    
+  const userDetail = await getNeteaseUserDetail()
+  const subcount = await getNeteaseUserPlaylist(userDetail.account.id)
+  const likelistNameReg = new RegExp(
+    `^${userDetail.profile.nickname}喜欢的音乐$`,
+  )
+  const userLikeList =
+    subcount.playlist.find((playList) => likelistNameReg.test(playList.name)) ||
+    subcount.playlist[0]
+  const { tracks: neteaseLikelistTracks } = await getNeteasePlayListAllTrack(
+    userLikeList.id,
+  )
+
   const spotifyTracks = await resolveSpotifySongsFromNeteaseSongs(
     neteaseLikelistTracks,
   )

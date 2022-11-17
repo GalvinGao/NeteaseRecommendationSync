@@ -24,10 +24,15 @@ export async function spotifyApiRequest(
       Authorization: `Bearer ${auth.accessToken}`,
     },
   })
-  if(response.status === 429){
+  if (response.status === 429) {
     logger.info('spotify: API rate limit exceeded, wait 30s to Rerequest')
-    const wait = (timeout=0)=>new Promise((res)=>{setTimeout(() => {res(null)}, timeout);})
-    await wait(1000*30)
+    const wait = (timeout = 0) =>
+      new Promise((res) => {
+        setTimeout(() => {
+          res(null)
+        }, timeout)
+      })
+    await wait(1000 * 30)
     return spotifyApiRequest(path, init)
   }
   const json = (await response.json()) as any
@@ -37,7 +42,7 @@ export async function spotifyApiRequest(
     await refreshSpotifyAccessToken()
     return spotifyApiRequest(path, init)
   }
-  
+
   if (response.status >= 400 || json.error) {
     logger.error(
       { status: response.status, body: json },
