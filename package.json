@@ -7,9 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "esno src/index.ts",
     "db:sync": "npx prisma generate && npx prisma db push",
-    "postinstall": "npm run db:sync",
     "lint": "eslint --ext .ts src",
-    "lint:fix": "eslint --ext .ts src --fix"
+    "lint:fix": "eslint --ext .ts src --fix",
+    "postinstall": "npm run db:sync"
   },
   "author": "",
   "license": "ISC",
