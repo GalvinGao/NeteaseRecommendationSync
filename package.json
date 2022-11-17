@@ -16,8 +16,6 @@
   "dependencies": {
     "@prisma/client": "^4.6.1",
     "@reduxjs/toolkit": "^1.8.6",
-    "add": "^2.0.6",
-    "async": "^3.2.4",
     "dotenv": "^16.0.3",
     "esno": "^0.16.3",
     "luxon": "^3.1.0",
