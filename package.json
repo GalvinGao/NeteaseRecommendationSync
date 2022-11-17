@@ -1,8 +1,9 @@
 {
-  "name": "neteaserecommendationsync",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "netease-recommendation-sync",
+  "private": true,
+  "version": "1.1.0",
+  "description": "同步网易云音乐每日推荐与私人雷达至 Spotify；反向同步 Spotify 喜欢的音乐至网易云音乐（用于持续优化网易云音乐推荐质量）",
+  "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "esno src/index.ts",
@@ -11,8 +12,18 @@
     "lint:fix": "eslint --ext .ts src --fix",
     "postinstall": "npm run db:sync"
   },
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:GalvinGao/NeteaseRecommendationSync.git"
+  },
+  "author": {
+    "name": "Project Contributors",
+    "url": "https://github.com/GalvinGao/NeteaseRecommendationSync/graphs/contributors"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "license": "MIT",
   "dependencies": {
     "@prisma/client": "^4.6.1",
     "@reduxjs/toolkit": "^1.8.6",
