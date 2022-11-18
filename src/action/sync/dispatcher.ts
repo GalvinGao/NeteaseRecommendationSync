@@ -1,3 +1,4 @@
+import { neteaseCalendarDate } from '../../utils/chrono'
 import { syncDailyRecommendation } from 'action/sync/dailyRecommendation'
 import { syncPrivateRadar } from 'action/sync/privateRadar'
 import { SYNC_DAILY, SYNC_RADAR } from 'config'
@@ -9,20 +10,25 @@ import { schedulerLastSyncChanged } from 'store/schedulerSlice'
 export interface SyncContext {
   syncId: string
   nowISO: string
-  nowDateInShanghai: string
+
+  // dailyFlushDate is the date we considered to be in Shanghai timezone;
+  // this date increments at 6:00 AM (instead of 0:00 AM) in Shanghai timezone
+  dailyFlushDate: string
+
   dailyRecommendationRetries?: number
 }
 
 export async function dispatchSyncRecommendations() {
   const now = DateTime.now()
   const nowISO = now.toISO()
-  const nowDateInShanghai = now.setZone('Asia/Shanghai').toFormat('yyyy-MM-dd')
-  const syncId = `${nowDateInShanghai}_${now.toMillis()}`
+  const dailyFlushDate = neteaseCalendarDate(now).toISODate()
+
+  const syncId = `${dailyFlushDate}_${now.toMillis()}`
   if (SYNC_DAILY) {
     await syncDailyRecommendation({
       syncId,
       nowISO,
-      nowDateInShanghai,
+      dailyFlushDate,
     })
     store.dispatch(schedulerLastSyncChanged(nowISO))
   }
@@ -31,7 +37,7 @@ export async function dispatchSyncRecommendations() {
     await syncPrivateRadar({
       syncId,
       nowISO,
-      nowDateInShanghai,
+      dailyFlushDate,
     })
   }
 

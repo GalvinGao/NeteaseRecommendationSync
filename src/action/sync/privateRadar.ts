@@ -9,7 +9,7 @@ import { resolveSpotifySongsFromNeteaseSongs } from 'modules/spotifyResolver'
 
 export async function syncPrivateRadar({
   nowISO,
-  nowDateInShanghai,
+  dailyFlushDate: nowDateInShanghai,
 }: SyncContext) {
   const { playLists } = await getNeteaseRecommendPlayLists()
   const privateRadarId =

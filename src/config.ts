@@ -37,3 +37,6 @@ export const NETEASE_MUSIC_PASSWORD = getRequiredEnvVar(
 
 export const SYNC_DAILY = getRequiredEnvVar('SYNC_DAILY') === 'true'
 export const SYNC_RADAR = getRequiredEnvVar('SYNC_RADAR') === 'true'
+
+// not using fromFormat because it is day agnostic
+export const NETEASE_CALENDAR_DAY_BEGINNING_TIME = { hour: 6, minute: 0 }

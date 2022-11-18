@@ -4,6 +4,7 @@ import { persistDailyRecommendationSynchronizationContext } from 'action/sync/sn
 import { getNeteaseRecommendations } from 'api/netease'
 import { addSpotifyTracks, createSpotifyPlaylist } from 'api/spotify'
 import { logger } from 'modules/logger'
+import { asyncSleep } from 'utils/timeout'
 
 export class InsufficientDailyRecommendationSongsError extends Error {
   constructor(length: number) {
@@ -14,7 +15,7 @@ export class InsufficientDailyRecommendationSongsError extends Error {
 async function performSyncDailyRecommendation({
   syncId,
   nowISO,
-  nowDateInShanghai,
+  dailyFlushDate: nowDateInShanghai,
 }: SyncContext) {
   const {
     recommendations: neteaseRecommendations,
@@ -63,10 +64,6 @@ async function performSyncDailyRecommendation({
   })
 }
 
-async function timeout(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
 export async function syncDailyRecommendation(context: SyncContext) {
   try {
     await performSyncDailyRecommendation(context)
@@ -83,7 +80,7 @@ export async function syncDailyRecommendation(context: SyncContext) {
         (context.dailyRecommendationRetries || 0) + 1
 
       logger.warn(err.message + '; retrying in 5 minutes')
-      await timeout(5 * 60 * 1000)
+      await asyncSleep(5 * 60 * 1000)
       await syncDailyRecommendation(context)
     } else {
       throw err
