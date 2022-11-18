@@ -5,7 +5,13 @@ import { getNeteaseRecommendations } from 'api/netease'
 import { addSpotifyTracks, createSpotifyPlaylist } from 'api/spotify'
 import { logger } from 'modules/logger'
 
-export async function syncDailyRecommendation({
+export class InsufficientDailyRecommendationSongsError extends Error {
+  constructor(length: number) {
+    super('netease: insufficient daily recommendation songs: ' + length)
+  }
+}
+
+async function performSyncDailyRecommendation({
   syncId,
   nowISO,
   nowDateInShanghai,
@@ -17,6 +23,12 @@ export async function syncDailyRecommendation({
   logger.info(
     `netease: got ${neteaseRecommendations.length} recommendation songs`,
   )
+
+  if (neteaseRecommendations.length < 10) {
+    throw new InsufficientDailyRecommendationSongsError(
+      neteaseRecommendations.length,
+    )
+  }
 
   const spotifyTracks = await resolveSpotifySongsFromNeteaseSongs(
     neteaseRecommendations,
@@ -49,4 +61,32 @@ export async function syncDailyRecommendation({
     neteaseRecommendationsOriginal,
     spotifyTracks,
   })
+}
+
+async function timeout(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export async function syncDailyRecommendation(context: SyncContext) {
+  try {
+    await performSyncDailyRecommendation(context)
+  } catch (err) {
+    if (err instanceof InsufficientDailyRecommendationSongsError) {
+      if ((context.dailyRecommendationRetries || 0) > 5) {
+        logger.error(
+          err,
+          'netease: insufficient daily recommendation songs; giving up after 5 retries',
+        )
+        throw err
+      }
+      context.dailyRecommendationRetries =
+        (context.dailyRecommendationRetries || 0) + 1
+
+      logger.warn(err.message + '; retrying in 5 minutes')
+      await timeout(5 * 60 * 1000)
+      await syncDailyRecommendation(context)
+    } else {
+      throw err
+    }
+  }
 }

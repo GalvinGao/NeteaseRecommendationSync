@@ -10,6 +10,7 @@ export interface SyncContext {
   syncId: string
   nowISO: string
   nowDateInShanghai: string
+  dailyRecommendationRetries?: number
 }
 
 export async function dispatchSyncRecommendations() {
