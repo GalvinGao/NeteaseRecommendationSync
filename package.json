@@ -10,6 +10,7 @@
     "db:sync": "npx prisma generate && npx prisma db push",
     "lint": "eslint --ext .ts src",
     "lint:fix": "eslint --ext .ts src --fix",
+    "importLike": "esno src/importLike.ts",
     "postinstall": "npm run db:sync"
   },
   "repository": {

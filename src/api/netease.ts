@@ -5,6 +5,7 @@ import {
   recommend_songs as neteaseGetRecommendations,
   like as neteaseLikeResource,
   user_account,
+  user_playlist,
 } from 'NeteaseCloudMusicApi'
 import { logger } from 'modules/logger'
 import { store } from 'store'
@@ -108,6 +109,12 @@ export async function loginNeteaseViaPhone(
 
 export async function getNeteaseUserDetail() {
   const json = await user_account({ cookie: getNeteaseAuthCookie() })
+  const res = processNeteaseResponse(json)
+  return res
+}
+
+export async function getNeteaseUserPlaylist(uid: number | string) {
+  const json = await user_playlist({ cookie: getNeteaseAuthCookie(), uid })
   const res = processNeteaseResponse(json)
   return res
 }
