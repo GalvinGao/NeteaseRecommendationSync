@@ -11,6 +11,24 @@
 
 ## 使用
 
+## Docker
+
+1. `curl -o .env -L https://github.com/GalvinGao/NeteaseRecommendationSync/raw/main/.env.example` 后，修改 `.env` 配置
+
+   1. `SPOTIFY_CLIENT_ID` 和 `SPOTIFY_CLIENT_SECRET` 为 Spotify 开发者账号的 Client ID 和 Client Secret；申请请参考 [Spotify for Developers](https://developer.spotify.com/dashboard/applications)。
+
+   1. `NETEASE_MUSIC_PHONE` 和 `NETEASE_MUSIC_PASSWORD` 为网易云音乐账号的手机号和密码。
+
+1. 获取预置的 `docker-compose.yml`，修改（若需要）后启动服务
+
+```bash
+curl -o docker-compose.yml -L https://github.com/GalvinGao/NeteaseRecommendationSync/blob/main/docker-compose.yml
+# edit docker-compose.yml if needed
+docker-compose up -d
+```
+
+### 本地运行
+
 1. `cp .env.example .env` 后修改 `.env` 配置
 
    1. `SPOTIFY_CLIENT_ID` 和 `SPOTIFY_CLIENT_SECRET` 为 Spotify 开发者账号的 Client ID 和 Client Secret；申请请参考 [Spotify for Developers](https://developer.spotify.com/dashboard/applications)。

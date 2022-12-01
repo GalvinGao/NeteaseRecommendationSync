@@ -1,0 +1,9 @@
+version: '3'
+services:
+  nrs:
+    restart: unless-stopped
+    image: 'ghcr.io/galvingao/neteaserecommendationsync:latest'
+    volumes:
+      - persisted:/app/state
+volumes:
+  persisted:
