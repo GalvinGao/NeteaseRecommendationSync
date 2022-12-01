@@ -3,6 +3,8 @@ services:
   nrs:
     restart: unless-stopped
     image: 'ghcr.io/galvingao/neteaserecommendationsync:latest'
+    env_file:
+      - .env
     volumes:
       - persisted:/app/state
 volumes:

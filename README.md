@@ -11,7 +11,7 @@
 
 ## 使用
 
-## Docker
+### Docker
 
 1. `curl -o .env -L https://github.com/GalvinGao/NeteaseRecommendationSync/raw/main/.env.example` 后，修改 `.env` 配置
 
