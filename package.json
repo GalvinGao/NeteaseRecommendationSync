@@ -1,7 +1,7 @@
 {
   "name": "netease-recommendation-sync",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "同步网易云音乐每日推荐与私人雷达至 Spotify；反向同步 Spotify 喜欢的音乐至网易云音乐（用于持续优化网易云音乐推荐质量）",
   "main": "src/index.ts",
   "scripts": {
