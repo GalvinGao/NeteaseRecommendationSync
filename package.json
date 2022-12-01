@@ -11,7 +11,8 @@
     "lint": "eslint --ext .ts src",
     "lint:fix": "eslint --ext .ts src --fix",
     "importLike": "esno src/importLike.ts",
-    "postinstall": "npm run db:sync"
+    "postinstall": "npm run db:sync",
+    "build": "etsc"
   },
   "repository": {
     "type": "git",
@@ -29,7 +30,6 @@
     "@prisma/client": "^4.6.1",
     "@reduxjs/toolkit": "^1.8.6",
     "dotenv": "^16.0.3",
-    "esno": "^0.16.3",
     "luxon": "^3.1.0",
     "NeteaseCloudMusicApi": "^4.8.2",
     "node-fetch": "^3.2.10",
@@ -37,7 +37,7 @@
     "p-limit": "^4.0.0",
     "pino": "^8.7.0",
     "pino-pretty": "^9.1.1",
-    "typescript": "^4.8.4"
+    "prisma": "^4.6.1"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^3.4.0",
@@ -46,6 +46,9 @@
     "@types/node": "^18.11.9",
     "@types/node-schedule": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "esbuild": "^0.15.16",
+    "esbuild-node-tsc": "^2.0.4",
+    "esno": "^0.16.3",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^3.5.2",
@@ -53,6 +56,6 @@
     "eslint-plugin-jsx-a11y": "^6.6.1",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.7.1",
-    "prisma": "^4.6.1"
+    "typescript": "^4.8.4"
   }
 }

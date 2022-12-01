@@ -145,3 +145,5 @@ dist
 
 state/
 prisma/db.sqlite
+build/
+daemon/
