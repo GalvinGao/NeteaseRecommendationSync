@@ -22,7 +22,7 @@
 1. 获取预置的 `docker-compose.yml`，修改（若需要）后启动服务
 
 ```bash
-curl -o docker-compose.yml -L https://github.com/GalvinGao/NeteaseRecommendationSync/blob/main/docker-compose.yml
+curl -o docker-compose.yml -L https://github.com/GalvinGao/NeteaseRecommendationSync/raw/main/docker-compose.yml
 # edit docker-compose.yml if needed
 docker-compose up -d
 ```
