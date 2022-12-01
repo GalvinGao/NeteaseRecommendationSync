@@ -31,7 +31,7 @@ jobs:
         id: dockermeta
         uses: docker/metadata-action@v4
         with:
-          images: ghcr.io/${{ inputs.repository }}
+          images: ghcr.io/GalvinGao/NeteaseRecommendationSync
           tags: |
             type=semver,pattern=v{{version}}
             type=ref,event=pr
