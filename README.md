@@ -36,7 +36,7 @@ docker-compose up -d
    1. `NETEASE_MUSIC_PHONE` 和 `NETEASE_MUSIC_PASSWORD` 为网易云音乐账号的手机号和密码。
 
 1. 配置修改完毕后，使用 `npm run start` 启动每日推荐服务
-   1. 或者使用 `npm run importLike` 将网易云音乐我喜欢的音乐导入至 Spotify 歌单，由于 Spotify Api 的速率限制，根据歌单长度你将消耗额外的时间。
+   1. 或者使用 `npm run importLike` 将网易云音乐我喜欢的音乐导入至 Spotify 歌单。需要注意的是，在此模式下，由于 Spotify API 的速率限制，根据歌单长度的不同，导入耗时将在 1 - 10 分钟不等。
 1. 留意 Console 信息，你将需要通过 Spotify OAuth 授权本服务访问你的 Spotify 账号
 1. 授权通过并完成首次同步后，本项目将会：
    1. 在 `Asia/Shanghai` 时区的每天 6:10 AM 自动同步网易云音乐每日推荐至 Spotify
