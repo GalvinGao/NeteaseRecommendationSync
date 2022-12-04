@@ -1,5 +1,6 @@
 import { refreshSpotifyAccessToken } from 'action/spotifyAuth'
 import { NeteaseSong } from 'api/netease'
+import fastLevenshtein from 'fast-levenshtein'
 import { logger } from 'modules/logger'
 import fetch, { RequestInit } from 'node-fetch'
 import { store } from 'store'
@@ -56,23 +57,70 @@ export async function spotifyApiRequest(
   return json
 }
 
-export async function searchSpotify(song: NeteaseSong) {
+async function searchSpotifyNameArtist(song: NeteaseSong) {
   const query = [
     song.name,
     ...(song.artists.length > 0 ? [`${song.artists.join(' ')}`] : []),
-    // ...(song.album ? [`album:${song.album}`] : []),
   ].join(' ')
 
-  logger.debug({ song }, `spotify: searching song with query "${query}"`)
-
   const response = await spotifyApiRequest(
-    `/v1/search?q=${encodeURIComponent(query)}&type=track&limit=1`,
+    `/v1/search?q=${encodeURIComponent(query)}&type=track&limit=3`,
   )
   if (response.tracks.items.length === 0) {
+    return []
+  }
+
+  return response.tracks.items as any[]
+}
+
+async function searchSpotifyName(song: NeteaseSong) {
+  const response = await spotifyApiRequest(
+    `/v1/search?q=${encodeURIComponent(song.name)}&type=track&limit=3`,
+  )
+  if (response.tracks.items.length === 0) {
+    return []
+  }
+
+  return response.tracks.items as any[]
+}
+
+export async function searchSpotify(song: NeteaseSong) {
+  logger.debug(
+    { song },
+    `spotify: searching song "${song.name}" with multiple strategies`,
+  )
+  const matches = await Promise.all([
+    searchSpotifyNameArtist(song),
+    searchSpotifyName(song),
+  ])
+  const match = matches
+    .filter((m) => !!m)
+    .map((m) =>
+      m.map((t: any, index: number) => ({
+        ...t,
+        distance: fastLevenshtein.get(song.name, t.name),
+        index,
+      })),
+    )
+    .flat()
+    .sort(
+      (a, b) =>
+        // sort by distance, then by index (so that the first result is the best)
+        a.distance - b.distance || a.index - b.index,
+    )
+
+  if (match.length === 0) {
+    logger.info(`spotify: song "${song.name}" not found in spotify`)
     return null
   }
 
-  return response.tracks.items[0]
+  const track = match[0]
+  logger.info(
+    `spotify: song "${song.name}" found in spotify: ${
+      track.name
+    } by ${track.artists.map((a: any) => a.name).join(', ')}`,
+  )
+  return track
 }
 
 export async function createSpotifyPlaylist(name: string, description: string) {

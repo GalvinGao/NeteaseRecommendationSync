@@ -4,10 +4,17 @@ import { schedulerShouldSkip } from 'action/scheduler'
 import { dispatchSpotifyAuth } from 'action/spotifyAuth'
 import { dispatchSyncRecommendations } from 'action/sync/dispatcher'
 import { SYNC_TIME_PARSED, SYNC_TIME_TZ } from 'config'
+import { logger } from 'modules/logger'
 import { addSchedule } from 'modules/scheduler'
 
+const shouldIgnoreSkipCheck = process.argv.includes('--ignore-skip-check')
+
 async function sync() {
-  if (await schedulerShouldSkip()) return
+  if (shouldIgnoreSkipCheck) {
+    logger.info('scheduler: skipping duplication check')
+  } else if (await schedulerShouldSkip()) {
+    return
+  }
   await dispatchNeteaseAuth()
   await dispatchSpotifyAuth()
   await dispatchSyncRecommendations()

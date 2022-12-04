@@ -4,6 +4,7 @@ import { persistDailyRecommendationSynchronizationContext } from 'action/sync/sn
 import { getNeteaseRecommendations } from 'api/netease'
 import { addSpotifyTracks, createSpotifyPlaylist } from 'api/spotify'
 import { logger } from 'modules/logger'
+import notifier from 'node-notifier'
 import { asyncSleep } from 'utils/timeout'
 
 export class InsufficientDailyRecommendationSongsError extends Error {
@@ -80,6 +81,10 @@ export async function syncDailyRecommendation(context: SyncContext) {
         (context.dailyRecommendationRetries || 0) + 1
 
       logger.warn(err.message + '; retrying in 5 minutes')
+      notifier.notify({
+        title: 'Netease Daily Recommendation Sync',
+        message: err.message + '; retrying in 5 minutes',
+      })
       await asyncSleep(5 * 60 * 1000)
       await syncDailyRecommendation(context)
     } else {
