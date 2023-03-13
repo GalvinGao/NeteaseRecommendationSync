@@ -38,7 +38,7 @@
     "node-schedule": "^2.1.0",
     "p-limit": "^4.0.0",
     "pino": "^8.7.0",
-    "pino-pretty": "^9.1.1",
+    "pino-pretty": "^10.0.0",
     "prisma": "^4.6.1"
   },
   "devDependencies": {
