@@ -5,6 +5,7 @@ import { listSpotifyLikedSongs } from 'api/spotify'
 import { logger } from 'modules/logger'
 import pLimit from 'p-limit'
 import { prisma } from 'prisma'
+import { sleep } from 'utils/chrono'
 
 async function migrateLike(
   spotifySong: any,
@@ -52,26 +53,11 @@ async function migrateLike(
     return null
   }
 
-  const neteaseAnyLikedSong = await prisma.synchronizationNeteaseSong.findFirst(
-    {
-      where: {
-        neteaseId: spotify.neteaseId,
-        liked: true,
-      },
-      orderBy: {
-        id: 'desc',
-      },
-    },
-  )
-  if (neteaseAnyLikedSong) {
-    logger.info(`like migration: song "${netease.name}": like already migrated`)
-    return null
-  }
-
   logger.info(
     `like migration: migrating song "${spotifySong.track.name}" to netease with neteaseId ${spotify.neteaseId}`,
   )
-  await likeNeteaseMusic(spotify.neteaseId)
+  await likeNeteaseMusic(spotify.neteaseId, true)
+  await sleep(15000)
 
   await prisma.synchronizationNeteaseSong.update({
     where: {
@@ -95,7 +81,8 @@ async function migrateLike(
 }
 
 export async function dispatchMigrateLikes() {
-  const likes = await listSpotifyLikedSongs({ max: 60 }) // list recent 60 likes
+  logger.info('like migration: started')
+  const likes = await listSpotifyLikedSongs({ max: 200 }) // list recent likes
   logger.info(`spotify: got ${likes.length} liked songs`)
 
   const limiter = pLimit(1) // netease has got a very strict rate limit so we need to limit the concurrency

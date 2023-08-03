@@ -48,4 +48,10 @@ async function main() {
   )
 }
 
-main()
+main().catch((e) => {
+  logger.debug('error occurred: %o', e)
+  logger.error(
+    `main: error occurred: ${e.message}\n${e.stack}\n\nexiting with code 1`,
+  )
+  process.exit(1)
+})

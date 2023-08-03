@@ -1,8 +1,4 @@
-import {
-  getNeteasePlayListAllTrack,
-  getNeteaseUserDetail,
-  getNeteaseUserPlaylist,
-} from 'api/netease'
+import { getNeteasePlayListAllTrack, getNeteaseUserLikeList } from 'api/netease'
 import { addSpotifyTracks, createSpotifyPlaylist } from 'api/spotify'
 import { DateTime } from 'luxon'
 import { logger } from 'modules/logger'
@@ -13,14 +9,7 @@ export async function syncNeteaseLikelist() {
   const nowISO = now.toISO()
   const nowDateInShanghai = now.setZone('Asia/Shanghai').toFormat('yyyy-MM-dd')
 
-  const userDetail = await getNeteaseUserDetail()
-  const subcount = await getNeteaseUserPlaylist(userDetail.account.id)
-  const likelistNameReg = new RegExp(
-    `^${userDetail.profile.nickname}喜欢的音乐$`,
-  )
-  const userLikeList =
-    subcount.playlist.find((playList) => likelistNameReg.test(playList.name)) ||
-    subcount.playlist[0]
+  const userLikeList = await getNeteaseUserLikeList()
   const { tracks: neteaseLikelistTracks } = await getNeteasePlayListAllTrack(
     userLikeList.id,
   )

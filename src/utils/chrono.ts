@@ -6,3 +6,6 @@ export const neteaseCalendarDate = (date: DateTime) => {
     .setZone('Asia/Shanghai')
     .minus(NETEASE_CALENDAR_DAY_BEGINNING_TIME)
 }
+
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms))

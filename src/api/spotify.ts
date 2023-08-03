@@ -33,7 +33,7 @@ export async function spotifyApiRequest(
           res(null)
         }, timeout)
       })
-    await wait(1000 * 30)
+    await wait(1000 * 10 + Math.random() * 1000 * 20)
     return spotifyApiRequest(path, init)
   }
   const json = (await response.json()) as any
@@ -116,9 +116,11 @@ export async function searchSpotify(song: NeteaseSong) {
 
   const track = match[0]
   logger.info(
-    `spotify: song "${song.name}" found in spotify: ${
-      track.name
-    } by ${track.artists.map((a: any) => a.name).join(', ')}`,
+    `spotify: song "${song.name} - ${song.artists.join(
+      ', ',
+    )}" found in spotify: ${track.name} - ${track.artists
+      .map((a: any) => a.name)
+      .join(', ')}`,
   )
   return track
 }
@@ -157,6 +159,7 @@ export async function listSpotifyLikedSongs({ max = 50 }: { max?: number }) {
     )
     songs.push(...response.items)
     offset += limit
+    logger.debug(`spotify: got ${songs.length} / ${max} liked songs`)
   } while (response.next && songs.length < max)
   return songs
 }
