@@ -46,7 +46,7 @@
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/async": "^3.2.15",
-    "@types/fast-levenshtein": "^0.0.2",
+    "@types/fast-levenshtein": "^0.0.4",
     "@types/lodash": "^4.14.196",
     "@types/luxon": "^3.1.0",
     "@types/node": "^18.11.9",
